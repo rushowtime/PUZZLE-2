@@ -1,0 +1,78 @@
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import GLib
+from gi.repository import Gtk, Gdk
+
+
+class LabelWindow(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Lector de tarjeta")
+        self.set_border_width(10)
+        self.set_default_size(400, 200)
+
+        # Crear el "box" on ficarem un "label" i un "button"
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
+        vbox.set_homogeneous(False)
+        
+        # Creem el "label"
+        self.label = Gtk.Label(label="Please, login with your University class")
+        self.label.override_background_color(Gtk.StateType.NORMAL, Gdk.RGBA(0, 0, 1, 1))
+        vbox.pack_start(self.label, True, True, 0)
+
+        # Creem l'entrada de text
+        self.entry = Gtk.Entry()
+        self.entry.set_text("")
+        vbox.pack_start(self.entry, True, True, 0)
+
+        # Creem un box horitzontal per ficar els botons
+        hbox = Gtk.Box(spacing=2)
+        hbox.set_homogeneous(False)
+
+        # Creem el boto per enviar
+        button_send = Gtk.Button(label="Send")
+        button_send.connect("clicked", self.on_button_send_clicked)
+        hbox.pack_start(button_send, True, True, 0)
+
+        # Creem el boto per netejar el uid
+        button_clear = Gtk.Button(label="Clear")
+        button_clear.connect("clicked", self.on_button_clear_clicked)
+        hbox.pack_start(button_clear, True, True, 0)
+
+        #Afegim en la finestra el "box" creat
+        vbox.pack_start(hbox, True, True, 0)
+        self.add(vbox)
+
+
+    #Aquesta funcio s'aplica quan el boto de netejar es prem
+    def on_button_clear_clicked(self, widget):
+        #Tornem visible un altre vegada l'entrada de text
+        self.entry.set_text("")
+        self.entry.set_visible(True)
+        #Tornem el "label" en el seu estat inicial
+        self.label.set_text("Please, login with your University class")
+        self.label.override_background_color(Gtk.StateType.NORMAL, Gdk.RGBA(0, 0, 1, 1))
+
+    def on_button_send_clicked(self, widget):
+        uid = self.entry.get_text()
+        uid_number = int(uid)  # Convierteix el string en numero
+        uid_hex = hex(uid_number)[2:].upper()  # Convierteix el numero en hexadecimal i en mayusucules
+        
+        #Inicia la funcio que actualitza els objectes de la finestra
+        self.update(uid_hex)
+
+    def update(self, uid_hex):
+        # Actualitzem el "label" amb el uid llegit
+        self.label.set_text("UID: " + uid_hex)
+        self.label.override_background_color(Gtk.StateType.NORMAL, Gdk.RGBA(1, 0, 0, 1))
+        #amaga l'entrada de text
+        self.entry.set_visible(False)
+       
+
+
+# Creem la finestra i ejecutem el "main" de Gtk 
+window = LabelWindow()
+window.connect("destroy", Gtk.main_quit)
+window.show_all()
+Gtk.main()
